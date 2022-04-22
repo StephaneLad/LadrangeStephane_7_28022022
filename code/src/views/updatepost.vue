@@ -40,7 +40,11 @@ name: "poster",
   beforeCreate(){
     let url = document.location.href
     let id=url.slice(36)
+    try{
     let DataCookie=cookieFormer()
+    if(DataCookie.token.length<1){
+      document.location.href = `http://localhost:8080/#/log`
+    }
 
     let geter = {id_post:id,id_user:DataCookie.user_id}
     axios({
@@ -53,6 +57,9 @@ name: "poster",
       this.post=data.data.post
     })
     .catch(err=>console.log(err))
+    }catch(err){
+    document.location.href = `http://localhost:8080/#/log`
+    }
   },
   methods:{
     pushPost() {

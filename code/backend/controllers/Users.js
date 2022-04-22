@@ -76,10 +76,11 @@ exports.update=(req,res)=>{
     let email = data.email
     let user_name = data.user_name
     let password = data.password
+    const atMail = "@"
     userModel.findOne({where :{id_user:`${data.id_user}`}})
     .then(user=>{
         if(!user){return res.status(400).json({message:'user not fund'})}
-        if(email.length>=5){
+        if(email.length>=5 && email.includes(atMail)){
             user.email=email
         }
         if(user_name.length>=5){
