@@ -3,8 +3,10 @@
     <p @click="signup" id="sign" ref="signup" class="logOrSign">signup</p>
     <p @click="login" ref="login" class="logOrSign">login</p>
     <label for="email">Email:</label>
+    <p class="error">{{this.errorEmailReturn}}</p>
     <input ref="email" id="email" type="email" v-model="emailEntry" labe />
     <label for="password">password</label>
+    <p class="error">{{this.errorPasswordReturn}}</p>
     <input
       ref="password"
       id="password"
@@ -23,6 +25,8 @@ export default {
       emailEntry: "",
       passwordEntry: "",
       sign: true,
+      errorEmailReturn:"",
+      errorPasswordReturn:"",
     };
   },
   methods: {
@@ -38,8 +42,14 @@ export default {
     },
     log() {
       const atMail = "@";
+      this.errorEmailReturn=""
+      this.errorPasswordReturn=""
+      this.$refs.password.style.background = "#FFFFFF";
+      this.$refs.email.style.background = "#FFFFFF";
+
       if (this.emailEntry.length > 5 && this.emailEntry.includes(atMail)) {
         if (this.passwordEntry.length < 5) {
+          this.errorPasswordReturn="Mot de passe trop court"
           this.$refs.password.style.background = "#ffa8a8";
           return;
         }
@@ -62,7 +72,11 @@ export default {
               }; expires=${new Date(date).toString()}`;
               document.location.href = `http://localhost:8080/#/creat`;
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              console.log(err)
+              this.errorEmailReturn="Email déja utilisé"
+              this.$refs.email.style.background = "#ffa8a8";
+            });
         } else {
           axios
             .post("http://localhost:3000/api/login", {
@@ -82,10 +96,20 @@ export default {
               }; expires=${new Date(date).toString()}`;
               document.location.href = `http://localhost:8080/#/creat`;
             })
-            .catch((err) => console.log(err));
+            .catch((err)=> {
+              console.log(err.response.data)
+              if(err.response.data.passwordError){
+                this.errorPasswordReturn="Mot de passe invalide"
+              this.$refs.password.style.background = "#ffa8a8";
+              }else{
+                this.errorEmailReturn="Emai inconnue"
+              this.$refs.email.style.background = "#ffa8a8";
+              }
+            });
         }
       }
       else{
+        this.errorEmailReturn="Email invalide"
         this.$refs.email.style.background = "#ffa8a8";
         return;
       }
@@ -101,15 +125,20 @@ export default {
 #sign {
   color: red;
 }
+.error{
+  color: darkred
+}
 .login {
   display: grid;
   grid-template-columns: repeat(2, 50%);
-  grid-template-rows: repeat(6, 3em);
+  grid-template-rows: 3em 2em 1.5em 3em 2em 1.5em 3em 3em;
   grid-template-areas:
     "signup login"
     "email email"
+    "errorEmail errorEmail"
     "inputemail inputemail"
     "pass pass"
+    "errorPassword errorPassword"
     "inputpass inputpass"
     "push push";
 
@@ -127,19 +156,25 @@ export default {
     grid-area: email;
   }
   :nth-child(4) {
+    grid-area: errorEmail;
+  }
+  :nth-child(5) {
     grid-area: inputemail;
     width: 50%;
     margin: 0.8em 0 0.8em 25%;
   }
-  :nth-child(5) {
+  :nth-child(6) {
     grid-area: pass;
   }
-  :nth-child(6) {
+  :nth-child(7) {
+    grid-area: errorPassword;
+  }
+  :nth-child(8) {
     grid-area: inputpass;
     width: 50%;
     margin: 0.8em 0 0.8em 25%;
   }
-  :nth-child(7) {
+  :nth-child(9) {
     grid-area: push;
     width: 20%;
     margin: 0.5em 0 0.5em 40%;
@@ -150,12 +185,12 @@ export default {
   .login {
     width: 100%;
 
-    :nth-child(4) {
+    :nth-child(5) {
       grid-area: inputemail;
       width: 80%;
       margin: 0.8em 0 0.8em 10%;
     }
-    :nth-child(6) {
+    :nth-child(8) {
       grid-area: inputpass;
       width: 80%;
       margin: 0.8em 0 0.8em 10%;
